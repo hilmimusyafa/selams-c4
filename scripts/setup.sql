@@ -50,6 +50,7 @@ CREATE TABLE materials (
   type material_type NOT NULL,
   title TEXT NOT NULL,
   content TEXT, -- Rich text/Markdown/Embed URL
+  video_url TEXT, -- For video materials
   order_index INTEGER NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
@@ -287,78 +288,54 @@ CREATE INDEX idx_submissions_grade ON submissions(grade);
 CREATE INDEX idx_chat_context_course_id ON chat_context(course_id);
 
 -- ============================================================================
--- Mock Data - OPTIONAL: Run this after tables are created
+-- Auto-create Profile Trigger (Runs when new user signs up)
 -- ============================================================================
 
--- Note: In a real app, you'd create auth.users through Supabase Auth
--- This is for demonstration purposes with mock UUIDs
+-- Function to handle new user signup
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, role, display_name, avatar_url)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    'student', -- Default role is student
+    COALESCE(NEW.raw_user_meta_data->>'display_name', split_part(NEW.email, '@', 1)),
+    COALESCE(
+      NEW.raw_user_meta_data->>'avatar_url',
+      'https://api.dicebear.com/7.x/avataaars/svg?seed=' || NEW.id::text
+    )
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Insert sample teacher
-INSERT INTO profiles (id, email, role, display_name, avatar_url) 
-VALUES (
-  '550e8400-e29b-41d4-a716-446655440001'::uuid,
-  'teacher@example.com',
-  'teacher',
-  'Dr. Ahmad Kurniawan',
-  'https://api.dicebear.com/7.x/avataaars/svg?seed=teacher'
-);
+-- Trigger to automatically create profile on signup
+CREATE OR REPLACE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- Insert sample students
-INSERT INTO profiles (id, email, role, display_name, avatar_url) 
-VALUES 
-  ('550e8400-e29b-41d4-a716-446655440002'::uuid, 'student1@example.com', 'student', 'Budi Santoso', 'https://api.dicebear.com/7.x/avataaars/svg?seed=student1'),
-  ('550e8400-e29b-41d4-a716-446655440003'::uuid, 'student2@example.com', 'student', 'Siti Nur Azizah', 'https://api.dicebear.com/7.x/avataaars/svg?seed=student2'),
-  ('550e8400-e29b-41d4-a716-446655440004'::uuid, 'student3@example.com', 'student', 'Rini Wijaya', 'https://api.dicebear.com/7.x/avataaars/svg?seed=student3');
+-- ============================================================================
+-- Helper Function: Update user updated_at timestamp
+-- ============================================================================
 
--- Insert sample course
-INSERT INTO courses (id, teacher_id, title, description, cover_image_url, is_published) 
-VALUES (
-  '550e8400-e29b-41d4-a716-446655440011'::uuid,
-  '550e8400-e29b-41d4-a716-446655440001'::uuid,
-  'Pengantar Algoritma dan Struktur Data',
-  'Pelajari dasar-dasar algoritma, struktur data, dan teknik pemrograman yang efisien.',
-  'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&h=300&fit=crop',
-  true
-);
+CREATE OR REPLACE FUNCTION public.handle_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
--- Insert sample modules
-INSERT INTO modules (id, course_id, title, description, order_index) 
-VALUES 
-  ('550e8400-e29b-41d4-a716-446655440021'::uuid, '550e8400-e29b-41d4-a716-446655440011'::uuid, 'Bab 1: Pengenalan Algoritma', 'Memahami konsep dasar algoritma', 1),
-  ('550e8400-e29b-41d4-a716-446655440022'::uuid, '550e8400-e29b-41d4-a716-446655440011'::uuid, 'Bab 2: Array dan List', 'Struktur data dasar: Array dan Linked List', 2),
-  ('550e8400-e29b-41d4-a716-446655440023'::uuid, '550e8400-e29b-41d4-a716-446655440011'::uuid, 'Bab 3: Stack dan Queue', 'Struktur data LIFO dan FIFO', 3);
+-- Apply updated_at trigger to tables that have updated_at column
+CREATE TRIGGER set_updated_at
+  BEFORE UPDATE ON profiles
+  FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
 
--- Insert sample materials
-INSERT INTO materials (id, module_id, type, title, content, order_index) 
-VALUES 
-  ('550e8400-e29b-41d4-a716-446655440031'::uuid, '550e8400-e29b-41d4-a716-446655440021'::uuid, 'text', 'Apa itu Algoritma?', '# Pengantar Algoritma\n\nAlgoritma adalah urutan langkah-langkah logis untuk menyelesaikan masalah...', 1),
-  ('550e8400-e29b-41d4-a716-446655440032'::uuid, '550e8400-e29b-41d4-a716-446655440021'::uuid, 'video', 'Video: Algoritma Sederhana', 'https://www.youtube.com/embed/rL8X2mlNHPM', 2),
-  ('550e8400-e29b-41d4-a716-446655440033'::uuid, '550e8400-e29b-41d4-a716-446655440021'::uuid, 'quiz', 'Quiz: Konsep Algoritma', '[{"question":"Apa itu algoritma?","options":["Langkah logis","Bahasa pemrograman"],"correct":0}]', 3),
-  ('550e8400-e29b-41d4-a716-446655440034'::uuid, '550e8400-e29b-41d4-a716-446655440022'::uuid, 'text', 'Array dalam Pemrograman', '# Array\n\nArray adalah kumpulan elemen dengan tipe data yang sama...', 1);
+CREATE TRIGGER set_updated_at
+  BEFORE UPDATE ON courses
+  FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
 
--- Insert sample tasks (Quiz/Assignment with deadlines)
-INSERT INTO tasks (id, material_id, due_date, max_score, description) 
-VALUES 
-  ('550e8400-e29b-41d4-a716-446655440041'::uuid, '550e8400-e29b-41d4-a716-446655440033'::uuid, NOW() + INTERVAL '2 days', 20, 'Selesaikan kuis tentang konsep algoritma'),
-  ('550e8400-e29b-41d4-a716-446655440042'::uuid, '550e8400-e29b-41d4-a716-446655440034'::uuid, NOW() + INTERVAL '5 days', 30, 'Buat program array sederhana');
-
--- Insert enrollments
-INSERT INTO enrollments (id, student_id, course_id) 
-VALUES 
-  ('550e8400-e29b-41d4-a716-446655440051'::uuid, '550e8400-e29b-41d4-a716-446655440002'::uuid, '550e8400-e29b-41d4-a716-446655440011'::uuid),
-  ('550e8400-e29b-41d4-a716-446655440052'::uuid, '550e8400-e29b-41d4-a716-446655440003'::uuid, '550e8400-e29b-41d4-a716-446655440011'::uuid),
-  ('550e8400-e29b-41d4-a716-446655440053'::uuid, '550e8400-e29b-41d4-a716-446655440004'::uuid, '550e8400-e29b-41d4-a716-446655440011'::uuid);
-
--- Insert course progress (some materials completed)
-INSERT INTO course_progress (id, enrollment_id, material_id, is_completed, completed_at) 
-VALUES 
-  ('550e8400-e29b-41d4-a716-446655440061'::uuid, '550e8400-e29b-41d4-a716-446655440051'::uuid, '550e8400-e29b-41d4-a716-446655440031'::uuid, true, NOW() - INTERVAL '1 day'),
-  ('550e8400-e29b-41d4-a716-446655440062'::uuid, '550e8400-e29b-41d4-a716-446655440051'::uuid, '550e8400-e29b-41d4-a716-446655440032'::uuid, true, NOW() - INTERVAL '12 hours'),
-  ('550e8400-e29b-41d4-a716-446655440063'::uuid, '550e8400-e29b-41d4-a716-446655440051'::uuid, '550e8400-e29b-41d4-a716-446655440033'::uuid, false, NULL),
-  ('550e8400-e29b-41d4-a716-446655440064'::uuid, '550e8400-e29b-41d4-a716-446655440052'::uuid, '550e8400-e29b-41d4-a716-446655440031'::uuid, true, NOW() - INTERVAL '6 hours');
-
--- Insert sample submissions
-INSERT INTO submissions (id, task_id, student_id, answer_text, status, grade, feedback) 
-VALUES 
-  ('550e8400-e29b-41d4-a716-446655440071'::uuid, '550e8400-e29b-41d4-a716-446655440041'::uuid, '550e8400-e29b-41d4-a716-446655440002'::uuid, 'Jawaban kuis', 'graded', 18, 'Bagus! Jawaban Anda benar.'),
-  ('550e8400-e29b-41d4-a716-446655440072'::uuid, '550e8400-e29b-41d4-a716-446655440041'::uuid, '550e8400-e29b-41d4-a716-446655440003'::uuid, 'Jawaban kuis', 'submitted', NULL, NULL);
+CREATE TRIGGER set_updated_at
+  BEFORE UPDATE ON materials
+  FOR EACH ROW EXECUTE FUNCTION handle_updated_at();

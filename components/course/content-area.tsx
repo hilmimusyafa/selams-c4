@@ -5,106 +5,62 @@ import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface ContentAreaProps {
-  courseId: string
+  courseData: any
   selectedMaterialId: string
   isCompleted: boolean
   onMarkAsDone: (materialId: string) => void
 }
 
-export function ContentArea({ courseId, selectedMaterialId, isCompleted, onMarkAsDone }: ContentAreaProps) {
-  // Mock content data
-  const contentMap: Record<string, any> = {
-    "1": {
-      type: "text",
-      title: "Apa itu Algoritma?",
-      content: `
-        # Pengantar Algoritma
-
-Algoritma adalah urutan langkah-langkah logis dan terbatas untuk menyelesaikan masalah atau mencapai tujuan tertentu. Dalam pemrograman, algoritma adalah fondasi dari setiap program yang kita buat.
-
-## Karakteristik Algoritma yang Baik:
-
-1. **Input**: Algoritma harus jelas tentang apa yang diinput
-2. **Output**: Hasil yang jelas dan terdefinisi dengan baik
-3. **Definiteness**: Setiap langkah harus jelas dan tidak ambigu
-4. **Finiteness**: Algoritma harus berakhir dalam waktu yang terbatas
-5. **Effectiveness**: Setiap operasi harus dapat dilakukan oleh komputer
-
-## Contoh Algoritma Sederhana
-
-Algoritma untuk mencari bilangan terbesar dari tiga angka:
-
-1. Baca tiga bilangan: a, b, c
-2. Jika a > b, lanjut ke langkah 3. Jika tidak, lanjut ke langkah 4
-3. Jika a > c, maka a adalah yang terbesar. Jika tidak, c adalah yang terbesar
-4. Jika b > c, maka b adalah yang terbesar. Jika tidak, c adalah yang terbesar
-
-Algoritma ini terbatas, jelas, dan akan selalu menghasilkan output yang tepat.
-      `,
-    },
-    "2": {
-      type: "video",
-      title: "Video: Algoritma Sederhana",
-      videoUrl: "https://www.youtube.com/embed/rL8X2mlNHPM",
-    },
-    "3": {
-      type: "quiz",
-      title: "Quiz: Konsep Algoritma",
-      questions: [
-        {
-          id: 1,
-          question: "Apa itu algoritma?",
-          options: [
-            "Urutan langkah-langkah logis untuk menyelesaikan masalah",
-            "Bahasa pemrograman",
-            "Software development tool",
-          ],
-          correct: 0,
-        },
-        {
-          id: 2,
-          question: "Karakteristik mana yang BUKAN termasuk algoritma yang baik?",
-          options: ["Finiteness", "Definiteness", "Infiniteness"],
-          correct: 2,
-        },
-      ],
-    },
-    "4": {
-      type: "text",
-      title: "Array dalam Pemrograman",
-      content: `# Array: Struktur Data Fundamental
-
-Array adalah kumpulan elemen dengan tipe data yang sama yang disimpan dalam lokasi memori yang berurutan.
-
-## Keuntungan Array:
-- Akses elemen sangat cepat O(1)
-- Hemat memori dibanding struktur lain
-- Mudah diimplementasi
-
-## Kelemahan Array:
-- Ukuran fixed (tidak bisa berkembang)
-- Penambahan/penghapusan di tengah lambat O(n)
-      `,
-    },
+export function ContentArea({ courseData, selectedMaterialId, isCompleted, onMarkAsDone }: ContentAreaProps) {
+  // Find the selected material from courseData
+  let selectedMaterial: any = null
+  
+  for (const module of courseData.modules || []) {
+    const found = module.materials?.find((m: any) => m.id === selectedMaterialId)
+    if (found) {
+      selectedMaterial = found
+      break
+    }
   }
 
-  const material = contentMap[selectedMaterialId] || contentMap["1"]
+  if (!selectedMaterial) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-muted-foreground">Select a material to view</p>
+      </div>
+    )
+  }
 
   const renderContent = () => {
-    if (material.type === "text") {
+    if (selectedMaterial.type === "text") {
       return (
         <div className="prose prose-sm max-w-none dark:prose-invert">
-          <div className="whitespace-pre-wrap text-foreground">{material.content}</div>
+          <div className="whitespace-pre-wrap text-foreground">{selectedMaterial.content || "No content available"}</div>
         </div>
       )
     }
 
-    if (material.type === "video") {
+    if (selectedMaterial.type === "video") {
+      const videoUrl = selectedMaterial.video_url
+      if (!videoUrl) {
+        return <p className="text-muted-foreground">No video URL provided</p>
+      }
+
+      // Convert YouTube watch URLs to embed URLs if needed
+      let embedUrl = videoUrl
+      if (videoUrl.includes('youtube.com/watch')) {
+        const videoId = new URL(videoUrl).searchParams.get('v')
+        embedUrl = `https://www.youtube.com/embed/${videoId}`
+      } else if (videoUrl.includes('youtu.be/')) {
+        const videoId = videoUrl.split('youtu.be/')[1]
+        embedUrl = `https://www.youtube.com/embed/${videoId}`
+      }
+
       return (
         <div className="aspect-video w-full">
           <iframe
-            src={material.videoUrl}
-            title={material.title}
+            src={embedUrl}
+            title={selectedMaterial.title}
             className="w-full h-full rounded-lg"
             allowFullScreen
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -113,37 +69,42 @@ Array adalah kumpulan elemen dengan tipe data yang sama yang disimpan dalam loka
       )
     }
 
-    if (material.type === "quiz") {
+    if (selectedMaterial.type === "quiz" || selectedMaterial.type === "assignment") {
       return (
-        <div className="space-y-6">
-          <div className="text-sm text-muted-foreground">{material.questions.length} questions</div>
-          {material.questions.map((q: any) => (
-            <Card key={q.id} className="p-4">
-              <h3 className="font-semibold mb-3">{q.question}</h3>
-              <div className="space-y-2">
-                {q.options.map((option: string, idx: number) => (
-                  <label
-                    key={idx}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors"
-                  >
-                    <input type="radio" name={`question-${q.id}`} className="w-4 h-4" />
-                    <span className="text-sm">{option}</span>
-                  </label>
-                ))}
+        <Card className="p-6">
+          <div className="space-y-4">
+            <div className="prose prose-sm max-w-none dark:prose-invert">
+              <div className="whitespace-pre-wrap text-foreground">
+                {selectedMaterial.content || "Quiz/Assignment content will be displayed here"}
               </div>
-            </Card>
-          ))}
-          <Button className="w-full bg-primary hover:bg-primary/90">Submit Quiz</Button>
-        </div>
+            </div>
+            {selectedMaterial.type === "assignment" && (
+              <div className="pt-4 border-t">
+                <Button className="bg-primary hover:bg-primary/90">
+                  Submit Assignment
+                </Button>
+              </div>
+            )}
+            {selectedMaterial.type === "quiz" && (
+              <div className="pt-4 border-t">
+                <Button className="bg-primary hover:bg-primary/90">
+                  Start Quiz
+                </Button>
+              </div>
+            )}
+          </div>
+        </Card>
       )
     }
+
+    return <p className="text-muted-foreground">Unknown material type</p>
   }
 
   return (
     <ScrollArea className="flex-1">
       <div className="p-6 md:p-8 space-y-6">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">{material.title}</h2>
+          <h2 className="text-2xl font-bold text-foreground">{selectedMaterial.title}</h2>
         </div>
 
         {/* Content */}

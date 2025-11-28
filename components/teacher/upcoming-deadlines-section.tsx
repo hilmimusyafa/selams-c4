@@ -4,6 +4,9 @@ import { FileText, Calendar, AlertCircle, CheckCircle2 } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { createClient } from "@/lib/supabase/client"
+import { useAuth } from "@/hooks/use-auth"
+import { useEffect, useState } from "react"
 
 interface DeadlineItem {
   id: string
@@ -17,48 +20,84 @@ interface DeadlineItem {
 }
 
 export function UpcomingDeadlinesSection() {
-  // Mock data: assignments with deadline < 7 days + events with start_date < 7 days
-  const items: DeadlineItem[] = [
-    {
-      id: "1",
-      type: "assignment",
-      title: "Assignment: Program Array Sederhana",
-      courseName: "Algoritma & Struktur Data",
-      dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-      daysLeft: 2,
-      waitingForGrading: 12,
-      icon: FileText,
-    },
-    {
-      id: "2",
-      type: "event",
-      title: "Mid-term Exam",
-      courseName: "Algoritma & Struktur Data",
-      dueDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000),
-      daysLeft: 4,
-      icon: Calendar,
-    },
-    {
-      id: "3",
-      type: "assignment",
-      title: "Quiz: React Hooks",
-      courseName: "Web Development",
-      dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-      daysLeft: 5,
-      waitingForGrading: 8,
-      icon: FileText,
-    },
-    {
-      id: "4",
-      type: "assignment",
-      title: "Final Project Submission",
-      courseName: "Database Design",
-      dueDate: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
-      daysLeft: 6,
-      waitingForGrading: 5,
-      icon: FileText,
-    },
-  ]
+  const { user } = useAuth()
+  const [items, setItems] = useState<DeadlineItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchDeadlines() {
+      if (!user) return
+
+      const supabase = createClient()
+      const sevenDaysFromNow = new Date()
+      sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7)
+
+      try {
+        // Fetch tasks with due_date < 7 days, joining through materials -> modules -> courses
+        const { data: tasks } = await supabase
+          .from('tasks')
+          .select(`
+            id,
+            due_date,
+            material:materials!inner(
+              id,
+              title,
+              module:modules!inner(
+                id,
+                course:courses!inner(id, title, teacher_id)
+              )
+            )
+          `)
+          .not('due_date', 'is', null)
+          .gte('due_date', new Date().toISOString())
+          .lte('due_date', sevenDaysFromNow.toISOString())
+          .order('due_date', { ascending: true })
+
+        // Filter tasks where the course belongs to this teacher
+        const teacherTasks = (tasks || []).filter((task: any) => 
+          task.material?.module?.course?.teacher_id === user.id
+        )
+
+        // For each task, count submissions waiting for grading
+        const taskItems: DeadlineItem[] = await Promise.all(
+          teacherTasks.map(async (task: any) => {
+            const { count } = await supabase
+              .from('submissions')
+              .select('*', { count: 'exact', head: true })
+              .eq('task_id', task.id)
+              .is('grade', null)
+
+            const deadline = new Date(task.due_date)
+            const daysLeft = Math.ceil((deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+
+            return {
+              id: task.id,
+              type: 'assignment' as const,
+              title: task.material.title,
+              courseName: task.material.module.course.title,
+              dueDate: deadline,
+              daysLeft,
+              waitingForGrading: count || 0,
+              icon: FileText,
+            }
+          })
+        )
+
+        // Sort by date
+        const allItems = [...taskItems].sort(
+          (a, b) => a.dueDate.getTime() - b.dueDate.getTime()
+        )
+
+        setItems(allItems)
+      } catch (error) {
+        console.error('Error fetching deadlines:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDeadlines()
+  }, [user])
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("id-ID", {
@@ -67,6 +106,15 @@ export function UpcomingDeadlinesSection() {
       hour: "2-digit",
       minute: "2-digit",
     }).format(date)
+  }
+
+  if (loading) {
+    return (
+      <Card className="p-8 text-center">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-3" />
+        <p className="text-muted-foreground">Loading deadlines...</p>
+      </Card>
+    )
   }
 
   if (items.length === 0) {

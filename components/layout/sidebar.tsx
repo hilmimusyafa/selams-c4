@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, BookOpen, Calendar, Settings, Menu, X, GraduationCap, Plus } from "lucide-react"
+import { LayoutDashboard, BookOpen, Settings, Menu, X, GraduationCap, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -25,11 +25,6 @@ export function Sidebar({ isOpen, onToggle, userRole = "student" }: SidebarProps
       label: "My Courses",
       href: "/courses",
       icon: BookOpen,
-    },
-    {
-      label: "Calendar",
-      href: "/calendar",
-      icon: Calendar,
     },
     {
       label: "Settings",
@@ -93,7 +88,7 @@ export function Sidebar({ isOpen, onToggle, userRole = "student" }: SidebarProps
               asChild
               className="w-full bg-sidebar-primary hover:bg-sidebar-primary/90 text-sidebar-primary-foreground gap-2"
             >
-              <Link href="/teacher/courses/new">
+              <Link href="/teacher/course/create">
                 <Plus className="w-4 h-4" />
                 Create Course
               </Link>
