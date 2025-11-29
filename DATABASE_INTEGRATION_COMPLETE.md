@@ -209,10 +209,10 @@ All mockup components have been successfully converted to use real data from Sup
 ## How to Run and Test
 
 1. **Start Development Server:**
-   ```bash
+   \`\`\`bash
    cd /workspaces/Development/SeaLaMS/selams-c4
    pnpm dev
-   ```
+   \`\`\`
 
 2. **Login as Student:**
    - Go to http://localhost:3000/login

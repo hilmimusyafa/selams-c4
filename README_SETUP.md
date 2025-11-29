@@ -34,25 +34,25 @@
 1. **Buka file `.env.local`** di root project
 2. **Ganti nilai placeholder** dengan credentials dari Supabase:
 
-```env
+\`\`\`env
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGc...your-actual-anon-key
-```
+\`\`\`
 
 ⚠️ **PENTING**: File `.env.local` sudah ada di `.gitignore` jadi tidak akan ter-commit ke Git.
 
 ### 3. Install Dependencies
 
-```bash
+\`\`\`bash
 cd /workspaces/Development/SeaLaMS/selams-c4
 pnpm install
-```
+\`\`\`
 
 ### 4. Jalankan Development Server
 
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 Web akan berjalan di: **http://localhost:3000**
 
@@ -60,14 +60,14 @@ Web akan berjalan di: **http://localhost:3000**
 
 ## 📁 Struktur Integrasi Supabase
 
-```
+\`\`\`
 lib/supabase/
 ├── types.ts          # TypeScript types dari database schema
 ├── client.ts         # Client untuk Client Components (browser)
 ├── server.ts         # Client untuk Server Components & Server Actions
 ├── middleware.ts     # Helper untuk session management
 └── queries.ts        # Helper functions untuk database operations
-```
+\`\`\`
 
 ---
 
@@ -75,7 +75,7 @@ lib/supabase/
 
 ### Di Client Component
 
-```tsx
+\`\`\`tsx
 'use client';
 
 import { createClient } from '@/lib/supabase/client';
@@ -99,11 +99,11 @@ export default function MyClientComponent() {
 
   return <div>{/* render courses */}</div>;
 }
-```
+\`\`\`
 
 ### Di Server Component
 
-```tsx
+\`\`\`tsx
 import { createClient } from '@/lib/supabase/server';
 
 export default async function MyServerComponent() {
@@ -116,11 +116,11 @@ export default async function MyServerComponent() {
 
   return <div>{/* render courses */}</div>;
 }
-```
+\`\`\`
 
 ### Di Server Action
 
-```tsx
+\`\`\`tsx
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
@@ -140,11 +140,11 @@ export async function createCourse(formData: FormData) {
   if (error) throw error;
   return data;
 }
-```
+\`\`\`
 
 ### Menggunakan Helper Functions
 
-```tsx
+\`\`\`tsx
 import { createClient } from '@/lib/supabase/server';
 import { getPublishedCourses, getCourseWithContent } from '@/lib/supabase/queries';
 
@@ -156,7 +156,7 @@ export default async function CoursesPage() {
   
   return <div>{/* render courses */}</div>;
 }
-```
+\`\`\`
 
 ---
 
@@ -204,7 +204,7 @@ File `lib/supabase/queries.ts` menyediakan helper functions siap pakai:
 
 Untuk menambahkan authentication nanti:
 
-```tsx
+\`\`\`tsx
 // Login
 const { data, error } = await supabase.auth.signInWithPassword({
   email: 'user@example.com',
@@ -222,7 +222,7 @@ const { data: { user } } = await supabase.auth.getUser();
 
 // Logout
 await supabase.auth.signOut();
-```
+\`\`\`
 
 ---
 
@@ -261,16 +261,16 @@ Database schema **TIDAK** include mock data secara otomatis karena memerlukan us
 2. **Update Role Menjadi Teacher** (jika ingin)
    - Buka **SQL Editor** di Supabase
    - Jalankan query:
-   ```sql
+   \`\`\`sql
    UPDATE profiles 
    SET role = 'teacher' 
    WHERE email = 'teacher@test.com';
-   ```
+   \`\`\`
 
 3. **Buat Course**
    - Copy UUID user dari Authentication > Users
    - Di SQL Editor, jalankan:
-   ```sql
+   \`\`\`sql
    INSERT INTO courses (teacher_id, title, description, is_published) 
    VALUES (
      'PASTE-UUID-TEACHER-DISINI'::uuid,
@@ -278,7 +278,7 @@ Database schema **TIDAK** include mock data secara otomatis karena memerlukan us
      'Course description',
      true
    );
-   ```
+   \`\`\`
 
 **Opsi 2: Melalui Aplikasi (Setelah Login Diimplementasi)**
 - Signup sebagai user baru
@@ -290,7 +290,7 @@ File `scripts/seed-data.sql` berisi template untuk membuat test data.
 
 ## 🛠️ Development Scripts
 
-```bash
+\`\`\`bash
 # Development server (dengan hot reload)
 pnpm dev
 
@@ -302,7 +302,7 @@ pnpm start
 
 # Linting
 pnpm lint
-```
+\`\`\`
 
 ---
 
@@ -339,9 +339,9 @@ pnpm lint
 - RLS policies memerlukan authenticated user
 - Pastikan user sudah login
 - Untuk testing tanpa auth, bisa disable RLS sementara (tidak direkomendasikan):
-  ```sql
+  \`\`\`sql
   ALTER TABLE nama_tabel DISABLE ROW LEVEL SECURITY;
-  ```
+  \`\`\`
 
 ### Error: "insert or update on table profiles violates foreign key constraint"
 - Error ini terjadi jika mencoba insert profile tanpa user di `auth.users`

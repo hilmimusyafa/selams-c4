@@ -165,7 +165,7 @@ Fitur untuk membuat course dengan bantuan AI sudah **selesai diimplementasi** se
 
 ## 📊 Generated Course Structure Example
 
-```
+\`\`\`
 Course: "Pengantar Algoritma"
 Keywords: ["sorting", "array", "complexity"]
 
@@ -187,7 +187,7 @@ Generated Structure:
     └── Quiz: Complexity (quiz - 5 questions)
 
 Total: 3 modules, 12 materials (9 text + 3 quiz)
-```
+\`\`\`
 
 ---
 

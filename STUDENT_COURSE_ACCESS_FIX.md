@@ -39,20 +39,20 @@ Perubahan:
 ## Cara Menyelesaikan
 
 ### Step 1: Update Course Access Policy
-```sql
+\`\`\`sql
 -- Jalankan di Supabase SQL Editor
 -- File: scripts/fix-course-access-policy.sql
-```
+\`\`\`
 
 1. Buka Supabase Dashboard → SQL Editor
 2. Copy isi file `scripts/fix-course-access-policy.sql`
 3. Paste dan **Run**
 
 ### Step 2: Add Complete Policies
-```sql
+\`\`\`sql
 -- Jalankan di Supabase SQL Editor
 -- File: scripts/complete-rls-policies.sql
-```
+\`\`\`
 
 1. Di SQL Editor yang sama
 2. Copy isi file `scripts/complete-rls-policies.sql`
@@ -68,14 +68,14 @@ Perubahan:
 
 Jika student belum enrolled, jalankan SQL ini:
 
-```sql
+\`\`\`sql
 -- Ganti UUID dengan ID yang sesuai
 INSERT INTO enrollments (student_id, course_id)
 VALUES (
   'STUDENT-UUID-HERE'::uuid,
   'COURSE-UUID-HERE'::uuid
 );
-```
+\`\`\`
 
 Cara mendapatkan UUID:
 - Student UUID: Supabase Dashboard → Authentication → Users

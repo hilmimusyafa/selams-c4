@@ -34,45 +34,45 @@ Integrasi Supabase sudah selesai dikonfigurasi! Berikut yang sudah dibuat:
 
 ### 1. Jalankan Database Schema di Supabase
 
-```
+\`\`\`
 1. Buka: https://oydtlfxiwausmuzykain.supabase.co
 2. Pergi ke: SQL Editor
 3. Copy isi file: scripts/setup.sql
 4. Paste dan RUN
 5. Pastikan tidak ada error
-```
+\`\`\`
 
 **PENTING**: Error foreign key sudah diperbaiki! Sekarang menggunakan trigger untuk auto-create profile.
 
 ### 2. Buat Test Users (Opsional untuk Testing)
 
 Di Supabase Dashboard:
-```
+\`\`\`
 Authentication > Users > Add User
 - Email: teacher@test.com
 - Password: password123
 
 Ulangi untuk student@test.com
-```
+\`\`\`
 
 ### 3. Buat Test Data (Opsional)
 
 Lihat panduan lengkap di `TESTING.md`
 
 Quick script:
-```sql
+\`\`\`sql
 -- Update role
 UPDATE profiles SET role = 'teacher' WHERE email = 'teacher@test.com';
 
 -- Lihat TESTING.md untuk script lengkap
-```
+\`\`\`
 
 ### 4. Jalankan Development Server
 
-```bash
+\`\`\`bash
 cd /workspaces/Development/SeaLaMS/selams-c4
 pnpm dev
-```
+\`\`\`
 
 Web akan berjalan di: http://localhost:3000
 
@@ -112,9 +112,9 @@ Web akan berjalan di: http://localhost:3000
 ## 💡 Tips
 
 1. **Testing tanpa Auth**: Untuk testing awal tanpa login, bisa disable RLS sementara:
-   ```sql
+   \`\`\`sql
    ALTER TABLE courses DISABLE ROW LEVEL SECURITY;
-   ```
+   \`\`\`
 
 2. **Cek Data**: Gunakan Supabase Table Editor untuk melihat data secara visual
 

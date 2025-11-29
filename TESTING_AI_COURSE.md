@@ -3,29 +3,29 @@
 ## ⚡ Quick Test (5 menit)
 
 ### 1. Setup Storage (Sekali Saja)
-```bash
+\`\`\`bash
 # Buka Supabase Dashboard > SQL Editor
 # Copy paste semua isi file: scripts/SETUP_STORAGE.sql
 # Klik RUN
-```
+\`\`\`
 
 ### 2. Start Server
-```bash
+\`\`\`bash
 cd /workspaces/Development/SeaLaMS/selams-c4
 pnpm dev
-```
+\`\`\`
 
 ### 3. Login sebagai Teacher
-```
+\`\`\`
 http://localhost:3000/login
-```
+\`\`\`
 - Login dengan akun teacher atau
 - Register baru dengan role "Guru"
 
 ### 4. Test Create Course
-```
+\`\`\`
 Dashboard → Klik tombol + (bottom-right)
-```
+\`\`\`
 
 **Step 1: Info Course**
 - Judul: `Algoritma dan Pemrograman`
@@ -61,7 +61,7 @@ Dashboard → Klik tombol + (bottom-right)
 - Shows "0 students"
 
 ### Di Database:
-```sql
+\`\`\`sql
 -- Check di Supabase > Table Editor
 SELECT * FROM courses ORDER BY created_at DESC LIMIT 1;
 -- Should see new course
@@ -71,7 +71,7 @@ SELECT * FROM modules WHERE course_id = 'YOUR_COURSE_ID';
 
 SELECT * FROM materials LIMIT 10;
 -- Should see materials (text + quiz)
-```
+\`\`\`
 
 ---
 
@@ -79,7 +79,7 @@ SELECT * FROM materials LIMIT 10;
 
 ### For Keywords: ["sorting", "array", "searching"]
 
-```
+\`\`\`
 Course: Algoritma dan Pemrograman
 ├── Bab 1: Sorting (4 materials)
 │   ├── Pengenalan Sorting (text)
@@ -100,7 +100,7 @@ Course: Algoritma dan Pemrograman
     └── Quiz: Searching (quiz - 5 soal)
 
 Total: 3 modules, 12 materials
-```
+\`\`\`
 
 ---
 

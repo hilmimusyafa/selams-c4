@@ -24,7 +24,7 @@ File upload mencoba akses bucket `course-references` yang belum dibuat di Supaba
 File: `scripts/fix-infinite-recursion.sql`
 
 **Policy baru (tanpa recursion):**
-```sql
+\`\`\`sql
 -- SELECT: Simple check tanpa nested EXISTS
 CREATE POLICY "course_select_policy" ON courses
   FOR SELECT USING (
@@ -38,24 +38,24 @@ CREATE POLICY "course_insert_policy" ON courses
   FOR INSERT WITH CHECK (auth.uid() = teacher_id);
 
 -- UPDATE/DELETE: Teacher bisa manage own courses
-```
+\`\`\`
 
 ### 2. Disable File Upload (Sementara)
 File: `app/teacher/course/create/page.tsx`
 
 Karena bucket belum ready, file upload di-skip:
-```typescript
+\`\`\`typescript
 // Skip file upload for now
 const referenceUrls: string[] = []
-```
+\`\`\`
 
 ## Cara Menyelesaikan
 
 ### Step 1: Fix RLS Policy (WAJIB!)
-```bash
+\`\`\`bash
 # Jalankan di Supabase SQL Editor
 # File: scripts/fix-infinite-recursion.sql
-```
+\`\`\`
 
 1. Buka **Supabase Dashboard** → **SQL Editor**
 2. Copy isi file `scripts/fix-infinite-recursion.sql`
@@ -77,10 +77,10 @@ const referenceUrls: string[] = []
 ### Step 3: Setup Storage (Opsional - untuk file upload)
 Jika ingin aktifkan file upload nanti:
 
-```sql
+\`\`\`sql
 -- Jalankan di Supabase SQL Editor
 -- File: scripts/SETUP_STORAGE.sql
-```
+\`\`\`
 
 Atau manual:
 1. Supabase Dashboard → **Storage**

@@ -18,14 +18,14 @@ Di Supabase SQL Editor, jalankan file `scripts/setup.sql` (hanya sekali)
 
 #### Melalui SQL (Alternative):
 
-```sql
+\`\`\`sql
 -- Tidak bisa insert langsung ke auth.users
 -- Harus melalui Supabase Dashboard atau signup API
-```
+\`\`\`
 
 ### Step 3: Set Role Teacher
 
-```sql
+\`\`\`sql
 -- Di SQL Editor, jalankan:
 UPDATE profiles 
 SET role = 'teacher', 
@@ -41,11 +41,11 @@ WHERE email = 'student1@test.com';
 UPDATE profiles 
 SET display_name = 'Siti Nur Azizah'
 WHERE email = 'student2@test.com';
-```
+\`\`\`
 
 ### Step 4: Buat Sample Course
 
-```sql
+\`\`\`sql
 -- Dapatkan teacher_id terlebih dahulu
 SELECT id, email, display_name FROM profiles WHERE role = 'teacher';
 
@@ -61,11 +61,11 @@ VALUES (
 
 -- Dapatkan course_id yang baru dibuat
 SELECT id, title FROM courses ORDER BY created_at DESC LIMIT 1;
-```
+\`\`\`
 
 ### Step 5: Buat Modules
 
-```sql
+\`\`\`sql
 -- Ganti dengan course_id yang sebenarnya
 INSERT INTO modules (course_id, title, description, order_index) 
 VALUES 
@@ -75,11 +75,11 @@ VALUES
 
 -- Dapatkan module_ids
 SELECT id, title FROM modules WHERE course_id = 'PASTE-COURSE-UUID'::uuid ORDER BY order_index;
-```
+\`\`\`
 
 ### Step 6: Buat Materials
 
-```sql
+\`\`\`sql
 -- Ganti dengan module_id yang sebenarnya (module pertama)
 INSERT INTO materials (module_id, type, title, content, order_index) 
 VALUES 
@@ -89,11 +89,11 @@ VALUES
    'https://www.youtube.com/embed/rL8X2mlNHPM', 2),
   ('PASTE-MODULE-1-UUID'::uuid, 'quiz', 'Quiz: Konsep Algoritma', 
    '[{"question":"Apa itu algoritma?","options":["Langkah logis","Bahasa pemrograman"],"correct":0}]', 3);
-```
+\`\`\`
 
 ### Step 7: Enroll Students
 
-```sql
+\`\`\`sql
 -- Dapatkan student IDs
 SELECT id, email, display_name FROM profiles WHERE role = 'student';
 
@@ -102,7 +102,7 @@ INSERT INTO enrollments (student_id, course_id)
 VALUES 
   ('PASTE-STUDENT-1-UUID'::uuid, 'PASTE-COURSE-UUID'::uuid),
   ('PASTE-STUDENT-2-UUID'::uuid, 'PASTE-COURSE-UUID'::uuid);
-```
+\`\`\`
 
 ---
 
@@ -110,7 +110,7 @@ VALUES
 
 Jalankan script berikut **SETELAH** membuat users di Supabase Auth Dashboard:
 
-```sql
+\`\`\`sql
 -- 1. Update roles
 UPDATE profiles SET role = 'teacher', display_name = 'Dr. Ahmad Kurniawan' 
 WHERE email = 'teacher@test.com';
@@ -171,13 +171,13 @@ BEGIN
   RAISE NOTICE 'Test data created successfully!';
   RAISE NOTICE 'Course ID: %', v_course_id;
 END $$;
-```
+\`\`\`
 
 ---
 
 ## ✅ Verify Data
 
-```sql
+\`\`\`sql
 -- Check profiles
 SELECT id, email, role, display_name FROM profiles;
 
@@ -197,7 +197,7 @@ SELECT e.id, p.display_name as student, c.title as course
 FROM enrollments e 
 JOIN profiles p ON e.student_id = p.id 
 JOIN courses c ON e.course_id = c.id;
-```
+\`\`\`
 
 ---
 

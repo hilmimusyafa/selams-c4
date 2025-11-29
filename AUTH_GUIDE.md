@@ -14,7 +14,7 @@ Sistem authentication sudah lengkap dengan:
 
 ## 📁 File Structure
 
-```
+\`\`\`
 app/
   login/
     page.tsx          # Login page
@@ -30,7 +30,7 @@ hooks/
   
 components/layout/
   top-bar.tsx         # Updated dengan user menu & logout
-```
+\`\`\`
 
 ---
 
@@ -69,7 +69,7 @@ Klik avatar di top-right → **Sign Out**
 
 Semua route kecuali `/login` dan `/register` memerlukan authentication:
 
-```
+\`\`\`
 ✅ Public:
 - /
 - /login
@@ -80,7 +80,7 @@ Semua route kecuali `/login` dan `/register` memerlukan authentication:
 - /teacher/*
 - /course/*
 - /settings
-```
+\`\`\`
 
 ### Role-Based Access
 
@@ -94,7 +94,7 @@ Semua route kecuali `/login` dan `/register` memerlukan authentication:
 
 ### Client Component
 
-```tsx
+\`\`\`tsx
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
@@ -111,11 +111,11 @@ export default function MyComponent() {
     </div>
   );
 }
-```
+\`\`\`
 
 ### Server Component
 
-```tsx
+\`\`\`tsx
 import { getCurrentProfileServer } from '@/lib/supabase/auth-server';
 import { redirect } from 'next/navigation';
 
@@ -133,11 +133,11 @@ export default async function MyServerComponent() {
     </div>
   );
 }
-```
+\`\`\`
 
 ### Server Action
 
-```tsx
+\`\`\`tsx
 'use server';
 
 import { getCurrentProfileServer } from '@/lib/supabase/auth-server';
@@ -155,7 +155,7 @@ export async function myAction() {
 
   // Do something...
 }
-```
+\`\`\`
 
 ---
 
@@ -165,7 +165,7 @@ export async function myAction() {
 
 File: `lib/supabase/auth.ts` - **Hanya untuk Client Components**
 
-```tsx
+\`\`\`tsx
 import { signIn, signUp, signOut, getCurrentProfile } from '@/lib/supabase/auth';
 
 // Login
@@ -179,13 +179,13 @@ await signOut();
 
 // Get current profile
 const profile = await getCurrentProfile();
-```
+\`\`\`
 
 ### Server-Side
 
 File: `lib/supabase/auth-server.ts` - **Hanya untuk Server Components/Actions**
 
-```tsx
+\`\`\`tsx
 import { getCurrentUserServer, getCurrentProfileServer, isAuthenticated } from '@/lib/supabase/auth-server';
 
 // Get current user
@@ -196,7 +196,7 @@ const profile = await getCurrentProfileServer();
 
 // Check if authenticated
 const authenticated = await isAuthenticated();
-```
+\`\`\`
 
 **⚠️ PENTING**: 
 - Jangan import `auth-server.ts` di Client Components
@@ -234,7 +234,7 @@ const authenticated = await isAuthenticated();
 
 ### Test Accounts (After Creating Users)
 
-```
+\`\`\`
 Teacher:
 Email: teacher@test.com
 Password: password123
@@ -242,39 +242,39 @@ Password: password123
 Student:
 Email: student@test.com
 Password: password123
-```
+\`\`\`
 
 ### Test Flow
 
 1. **Register Flow**
-   ```
+   \`\`\`
    /register → Select role → Fill form → Submit
    → Auto redirect to dashboard
-   ```
+   \`\`\`
 
 2. **Login Flow**
-   ```
+   \`\`\`
    /login → Enter credentials → Submit
    → Redirect based on role
-   ```
+   \`\`\`
 
 3. **Protected Route**
-   ```
+   \`\`\`
    Try access /student/dashboard without login
    → Redirect to /login
-   ```
+   \`\`\`
 
 4. **Role-Based Access**
-   ```
+   \`\`\`
    Login as Student → Try access /teacher/dashboard
    → Redirect to /student/dashboard
-   ```
+   \`\`\`
 
 5. **Logout Flow**
-   ```
+   \`\`\`
    Click avatar → Sign Out
    → Redirect to /login
-   ```
+   \`\`\`
 
 ---
 
@@ -284,21 +284,21 @@ Password: password123
 
 File: `middleware.ts`
 
-```typescript
+\`\`\`typescript
 export const config = {
   matcher: [
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };
-```
+\`\`\`
 
 ### Public Routes
 
 Defined in `lib/supabase/middleware.ts`:
 
-```typescript
+\`\`\`typescript
 const publicRoutes = ['/login', '/register'];
-```
+\`\`\`
 
 ---
 
@@ -314,18 +314,18 @@ const publicRoutes = ['/login', '/register'];
 
 Edit `lib/supabase/middleware.ts`:
 
-```typescript
+\`\`\`typescript
 // Custom redirect logic
 if (profile?.role === 'teacher') {
   url.pathname = '/your-custom-teacher-route';
 } else {
   url.pathname = '/your-custom-student-route';
 }
-```
+\`\`\`
 
 ### Add OAuth Providers (Google, GitHub, etc.)
 
-```tsx
+\`\`\`tsx
 import { createClient } from '@/lib/supabase/client';
 
 const supabase = createClient();
@@ -337,7 +337,7 @@ await supabase.auth.signInWithOAuth({
     redirectTo: `${window.location.origin}/auth/callback`,
   },
 });
-```
+\`\`\`
 
 ---
 

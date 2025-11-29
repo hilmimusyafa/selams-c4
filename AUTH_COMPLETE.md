@@ -32,30 +32,30 @@ Di Supabase SQL Editor, jalankan `scripts/setup.sql`
 
 ### 2️⃣ Register Akun Baru
 
-```
+\`\`\`
 1. Buka http://localhost:3000/register
 2. Pilih role: MURID atau GURU
 3. Isi form (nama, email, password)
 4. Klik "Daftar"
 5. Otomatis masuk ke dashboard sesuai role!
-```
+\`\`\`
 
 ### 3️⃣ Login
 
-```
+\`\`\`
 1. Buka http://localhost:3000/login
 2. Masukkan email & password
 3. Klik "Login"
 4. Redirect otomatis:
    - Guru → /teacher/dashboard
    - Murid → /student/dashboard
-```
+\`\`\`
 
 ### 4️⃣ Logout
 
-```
+\`\`\`
 Klik avatar di pojok kanan atas → "Sign Out"
-```
+\`\`\`
 
 ---
 
@@ -78,7 +78,7 @@ Klik avatar di pojok kanan atas → "Sign Out"
 
 ## 🎯 Routing Logic
 
-```
+\`\`\`
 ┌─────────────────────────────────────────────────────┐
 │                    User Access URL                  │
 └─────────────────────────────────────────────────────┘
@@ -104,7 +104,7 @@ Klik avatar di pojok kanan atas → "Sign Out"
     ▼                ▼    ▼                 ▼
   Allow       Redirect   /teacher/*    /student/*
               to Login   dashboard      dashboard
-```
+\`\`\`
 
 ---
 
@@ -136,7 +136,7 @@ Klik avatar di pojok kanan atas → "Sign Out"
 ## 🧪 Test Flow
 
 ### Test 1: Register Baru
-```bash
+\`\`\`bash
 1. Buka /register
 2. Pilih "Murid"
 3. Nama: "Test Student"
@@ -146,41 +146,41 @@ Klik avatar di pojok kanan atas → "Sign Out"
 7. Klik "Daftar"
 
 Expected: Redirect ke /student/dashboard
-```
+\`\`\`
 
 ### Test 2: Login
-```bash
+\`\`\`bash
 1. Buka /login
 2. Email: "student@example.com"
 3. Password: "password123"
 4. Klik "Login"
 
 Expected: Redirect ke /student/dashboard
-```
+\`\`\`
 
 ### Test 3: Protected Route
-```bash
+\`\`\`bash
 1. Logout (jika sudah login)
 2. Akses /student/dashboard langsung
 
 Expected: Redirect ke /login
-```
+\`\`\`
 
 ### Test 4: Role-Based Access
-```bash
+\`\`\`bash
 1. Login sebagai Student
 2. Coba akses /teacher/dashboard
 
 Expected: Redirect ke /student/dashboard
-```
+\`\`\`
 
 ### Test 5: Logout
-```bash
+\`\`\`bash
 1. Login sebagai Student
 2. Klik avatar → "Sign Out"
 
 Expected: Redirect ke /login
-```
+\`\`\`
 
 ---
 
@@ -188,10 +188,10 @@ Expected: Redirect ke /login
 
 ### Jalankan Development Server
 
-```bash
+\`\`\`bash
 cd /workspaces/Development/SeaLaMS/selams-c4
 pnpm dev
-```
+\`\`\`
 
 Web akan tersedia di: **http://localhost:3000**
 
@@ -214,7 +214,7 @@ Web akan tersedia di: **http://localhost:3000**
 
 Edit `app/register/page.tsx`:
 
-```tsx
+\`\`\`tsx
 // Add to state
 const [formData, setFormData] = useState({
   // ...existing fields
@@ -229,27 +229,27 @@ const [formData, setFormData] = useState({
   value={formData.phoneNumber}
   onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
 />
-```
+\`\`\`
 
 ### Ubah Redirect Route
 
 Edit `lib/supabase/middleware.ts`:
 
-```typescript
+\`\`\`typescript
 if (profile?.role === 'teacher') {
   url.pathname = '/your-custom-teacher-route';
 } else {
   url.pathname = '/your-custom-student-route';
 }
-```
+\`\`\`
 
 ### Tambah Public Route
 
 Edit `lib/supabase/middleware.ts`:
 
-```typescript
+\`\`\`typescript
 const publicRoutes = ['/login', '/register', '/about', '/contact'];
-```
+\`\`\`
 
 ---
 

@@ -98,7 +98,7 @@ Proses penyimpanan:
 
 ## File Structure
 
-```
+\`\`\`
 app/
 ├── teacher/
 │   └── course/
@@ -116,7 +116,7 @@ components/
 scripts/
 ├── setup.sql                     # Updated with video_url field
 └── storage-setup.sql             # NEW: Storage bucket & policies
-```
+\`\`\`
 
 ---
 
@@ -125,7 +125,7 @@ scripts/
 ### 1. Materials Table
 Added `video_url` field untuk support video materials di masa depan:
 
-```sql
+\`\`\`sql
 CREATE TABLE materials (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   module_id UUID NOT NULL REFERENCES modules(id) ON DELETE CASCADE,
@@ -137,12 +137,12 @@ CREATE TABLE materials (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
-```
+\`\`\`
 
 ### 2. Course References Table (NEW)
 Track reference files uploaded untuk setiap course:
 
-```sql
+\`\`\`sql
 CREATE TABLE course_references (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
@@ -151,15 +151,15 @@ CREATE TABLE course_references (
   file_type TEXT,
   uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
-```
+\`\`\`
 
 ### 3. Supabase Storage Bucket
 Bucket `course-references` untuk menyimpan file referensi:
 
-```sql
+\`\`\`sql
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('course-references', 'course-references', true);
-```
+\`\`\`
 
 **Policies**:
 - Teachers can upload files to own folder (by user ID)
@@ -186,7 +186,7 @@ Saat ini menggunakan **mock generator** yang:
 
 Replace mock dengan AI API (OpenAI, Anthropic, Gemini):
 
-```typescript
+\`\`\`typescript
 // Example with OpenAI
 import OpenAI from 'openai'
 
@@ -230,12 +230,12 @@ const completion = await openai.chat.completions.create({
 })
 
 const structure = JSON.parse(completion.choices[0].message.content)
-```
+\`\`\`
 
 ### Advanced: Process Reference Files
 Untuk membaca konten dari uploaded PDF/DOCX:
 
-```typescript
+\`\`\`typescript
 // Install: pdf-parse, mammoth
 import pdf from 'pdf-parse'
 import mammoth from 'mammoth'
@@ -255,7 +255,7 @@ async function extractDocxText(url: string) {
   const result = await mammoth.extractRawText({ buffer: Buffer.from(buffer) })
   return result.value
 }
-```
+\`\`\`
 
 ---
 
@@ -264,10 +264,10 @@ async function extractDocxText(url: string) {
 ### Multi-Step Form
 **5 langkah dengan progress indicator:**
 
-```
+\`\`\`
 [1] → [2] → [3] → [4] → [5]
 Info   Ref   AI    Review  Done
-```
+\`\`\`
 
 ### Step 1: Info Course
 - Input field untuk title (required)
@@ -335,23 +335,23 @@ Info   Ref   AI    Review  Done
 ### Test Steps
 
 #### 1. Access Course Creation
-```
+\`\`\`
 Dashboard Guru → Klik tombol + (FAB di bottom-right)
 Expected: Navigate to /teacher/course/create
-```
+\`\`\`
 
 #### 2. Fill Course Info (Step 1)
-```
+\`\`\`
 Input:
 - Title: "Pengantar Algoritma dan Pemrograman"
 - Description: "Course ini membahas dasar-dasar algoritma..."
 
 Expected: Next button enabled
 Click Next → Move to Step 2
-```
+\`\`\`
 
 #### 3. Upload References & Keywords (Step 2)
-```
+\`\`\`
 Actions:
 - Upload 1-3 PDF/DOCX files
 - Add keywords: "sorting", "searching", "complexity"
@@ -360,20 +360,20 @@ Expected:
 - Files listed dengan nama dan delete button
 - Keywords shown as tags
 - Next button enabled
-```
+\`\`\`
 
 #### 4. Generate with AI (Step 3)
-```
+\`\`\`
 Click "Generate dengan AI"
 
 Expected:
 - Upload progress bar shows 0-100%
 - Button shows spinner dan "AI Sedang Memproses..."
 - After 3 seconds → Navigate to Step 4
-```
+\`\`\`
 
 #### 5. Review Structure (Step 4)
-```
+\`\`\`
 Expected:
 - Shows 3 modules (based on 3 keywords)
 - Each module has 4 materials:
@@ -382,10 +382,10 @@ Expected:
   * Implementasi (text)
   * Quiz (quiz)
 - Save button enabled
-```
+\`\`\`
 
 #### 6. Save Course (Step 5)
-```
+\`\`\`
 Click "Simpan Course"
 
 Expected:
@@ -393,10 +393,10 @@ Expected:
 - Data saved to database
 - Navigate to success screen
 - Shows course title dan jumlah bab
-```
+\`\`\`
 
 #### 7. Verify in Database
-```sql
+\`\`\`sql
 -- Check course created
 SELECT * FROM courses WHERE teacher_id = 'YOUR_USER_ID' ORDER BY created_at DESC LIMIT 1;
 
@@ -414,17 +414,17 @@ SELECT t.* FROM tasks t
 JOIN materials mat ON mat.id = t.material_id
 JOIN modules m ON m.id = mat.module_id
 WHERE m.course_id = 'COURSE_ID';
-```
+\`\`\`
 
 #### 8. Check Teacher Dashboard
-```
+\`\`\`
 Navigate to /teacher/dashboard
 
 Expected:
 - New course appears in ManagedCoursesSection
 - Shows module count (3 modules)
 - Shows student count (0 initially)
-```
+\`\`\`
 
 ---
 
@@ -433,17 +433,17 @@ Expected:
 ### POST /api/ai/generate-course
 
 **Request Body:**
-```json
+\`\`\`json
 {
   "title": "Course Title",
   "description": "Course description...",
   "keywords": ["keyword1", "keyword2", "keyword3"],
   "referenceUrls": ["url1", "url2"]
 }
-```
+\`\`\`
 
 **Response:**
-```json
+\`\`\`json
 {
   "success": true,
   "structure": {
@@ -467,28 +467,28 @@ Expected:
     ]
   }
 }
-```
+\`\`\`
 
 **Error Response:**
-```json
+\`\`\`json
 {
   "error": "Missing required fields"
 }
-```
+\`\`\`
 
 ---
 
 ## Environment Variables Required
 
 ### For Real AI Integration:
-```bash
+\`\`\`bash
 # .env.local
 OPENAI_API_KEY=sk-...
 # or
 ANTHROPIC_API_KEY=...
 # or
 GOOGLE_AI_API_KEY=...
-```
+\`\`\`
 
 ---
 

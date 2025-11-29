@@ -4,13 +4,13 @@
 
 ### Run in Supabase SQL Editor:
 
-```bash
+\`\`\`bash
 # Copy isi file ini dan paste di Supabase SQL Editor
-```
+\`\`\`
 
-```sql
+\`\`\`sql
 -- scripts/storage-setup.sql
-```
+\`\`\`
 
 **Jalankan sekali saja saat pertama kali setup!**
 
@@ -21,49 +21,49 @@
 ### Step-by-step:
 
 1. **Login sebagai Teacher**
-   ```
+   \`\`\`
    http://localhost:3000/login
    Email: teacher@example.com (atau register baru dengan role "guru")
-   ```
+   \`\`\`
 
 2. **Klik tombol + (FAB) di bottom-right**
-   ```
+   \`\`\`
    Dashboard Guru → Klik tombol + floating
-   ```
+   \`\`\`
 
 3. **Isi Info Course**
-   ```
+   \`\`\`
    Judul: Pengantar Algoritma
    Deskripsi: Belajar dasar-dasar algoritma dan pemrograman
    Klik: Selanjutnya
-   ```
+   \`\`\`
 
 4. **Upload & Keywords**
-   ```
+   \`\`\`
    Upload: (optional) PDF/DOCX/TXT files
    Keywords: sorting, array, complexity (minimal 1 keyword)
    Klik: Selanjutnya
-   ```
+   \`\`\`
 
 5. **Generate AI**
-   ```
+   \`\`\`
    Review ringkasan
    Klik: Generate dengan AI
    Tunggu 3 detik (AI processing)
-   ```
+   \`\`\`
 
 6. **Preview & Save**
-   ```
+   \`\`\`
    Review struktur course yang di-generate
    Klik: Simpan Course
-   ```
+   \`\`\`
 
 7. **Success!**
-   ```
+   \`\`\`
    Course berhasil dibuat
    Klik: Kembali ke Dashboard
    Check: Course muncul di dashboard
-   ```
+   \`\`\`
 
 ---
 
@@ -71,7 +71,7 @@
 
 ### Check Supabase Dashboard:
 
-```sql
+\`\`\`sql
 -- Lihat course yang baru dibuat
 SELECT * FROM courses ORDER BY created_at DESC LIMIT 1;
 
@@ -82,19 +82,19 @@ SELECT * FROM modules WHERE course_id = 'YOUR_COURSE_ID';
 SELECT * FROM materials WHERE module_id IN (
   SELECT id FROM modules WHERE course_id = 'YOUR_COURSE_ID'
 );
-```
+\`\`\`
 
 ---
 
 ## 4️⃣ File Structure
 
-```
+\`\`\`
 ✅ app/teacher/course/create/page.tsx     - Course creation wizard
 ✅ app/api/ai/generate-course/route.ts    - AI API endpoint
 ✅ components/teacher/create-course-fab.tsx - FAB button
 ✅ scripts/storage-setup.sql              - Storage setup
 ✅ scripts/setup.sql                      - Updated schema
-```
+\`\`\`
 
 ---
 
@@ -116,7 +116,7 @@ SELECT * FROM materials WHERE module_id IN (
 
 Replace mock AI dengan real AI di `/app/api/ai/generate-course/route.ts`:
 
-```typescript
+\`\`\`typescript
 // Add OpenAI
 import OpenAI from 'openai'
 
@@ -125,7 +125,7 @@ const openai = new OpenAI({
 })
 
 // Replace generateMockStructure() dengan actual AI call
-```
+\`\`\`
 
 Lihat `AI_COURSE_CREATION_GUIDE.md` untuk detail lengkap!
 
